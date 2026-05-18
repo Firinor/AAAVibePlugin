@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 public class NestedSearchDropdown : AdvancedDropdown
 {
@@ -41,6 +42,7 @@ public class NestedSearchDropdown : AdvancedDropdown
                 var newDropdownItem = new AdvancedDropdownItem(item) { id = id };
                 root.AddChild(newDropdownItem);
                 _idToPathMap.Add(id, item);
+                newDropdownItem.id = id;
                 id++;
             }
         }
@@ -77,6 +79,7 @@ public class NestedSearchDropdown : AdvancedDropdown
         var newDropdownItem = new AdvancedDropdownItem(FullName()) { id = id };
         parent.AddChild(newDropdownItem);
         _idToPathMap.Add(id, FullName());
+        newDropdownItem.id = id;
         id++;
 
         string FullName()
@@ -88,12 +91,16 @@ public class NestedSearchDropdown : AdvancedDropdown
     protected override void ItemSelected(AdvancedDropdownItem item)
     {
         base.ItemSelected(item);
-        
-        if (_idToPathMap.TryGetValue(item.id, out var path))
+
+        if (!_idToPathMap.TryGetValue(item.id, out var path))
         {
-            _selectedPath = path;
-            _onItemSelected?.Invoke(_selectedPath);
+            Debug.LogError("PathMap: " + _idToPathMap
+            + " has no value: " + item.id);
+            return;
         }
+        
+        _selectedPath = path;
+        _onItemSelected?.Invoke(_selectedPath);
     }
 }
 #endif
